@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Laborify — Smart Labor Hiring App
 
 A full-stack, mobile-first labor marketplace connecting clients with skilled workers. Built with React + TypeScript (frontend), Node.js + Express + MongoDB (backend), and Capacitor (Android).
@@ -291,3 +292,6 @@ Verify `VITE_MAPBOX_TOKEN` is set in `.env`. The token must be a valid Mapbox pu
 
 **`npm run dev` can't reach the backend**
 Ensure the backend is running (`npm run backend`) and `VITE_API_URL=http://localhost:5000` is set.
+=======
+# laborify
+>>>>>>> 25c7d0b7872ca9aa190cca6027227b595ab60ffc
