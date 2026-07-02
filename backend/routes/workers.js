@@ -4,7 +4,7 @@ const Worker = require('../models/Worker');
 const Job = require('../models/Job');
 const auth = require('../middleware/auth');
 
-// GET /api/workers/me — current worker's profile + stats
+// GET /api/workers/me â€” current worker's profile + stats
 router.get('/me', auth, async (req, res) => {
   try {
     const worker = await Worker.findById(req.user.id).select('-password');
@@ -40,7 +40,7 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// GET /api/workers/nearby — find workers near given coords
+// GET /api/workers/nearby â€” find workers near given coords
 // Removes fake distances, filters out occupied workers, expands radius if needed
 router.get('/nearby', auth, async (req, res) => {
   try {
@@ -61,28 +61,24 @@ router.get('/nearby', auth, async (req, res) => {
     const clientLng = lng ? parseFloat(lng) : null;
 
     if (clientLat && clientLng) {
-      // Try with expanding radius: 20km → 50km → 100km
-      const radiusSteps = [parseFloat(radius), 50, 100];
+      const requestedRadius = parseFloat(radius);
+      const maxDistanceKm = Number.isFinite(requestedRadius) && requestedRadius > 0 ? requestedRadius : 20;
 
-      for (const r of radiusSteps) {
-        try {
-          workers = await Worker.find({
-            ...baseQuery,
-            'location.coordinates': { $ne: [0, 0] },
-            location: {
-              $near: {
-                $geometry: { type: 'Point', coordinates: [clientLng, clientLat] },
-                $maxDistance: r * 1000,
-              },
+      try {
+        workers = await Worker.find({
+          ...baseQuery,
+          'location.coordinates': { $ne: [0, 0] },
+          location: {
+            $near: {
+              $geometry: { type: 'Point', coordinates: [clientLng, clientLat] },
+              $maxDistance: maxDistanceKm * 1000,
             },
-          })
-            .select('name rating skills location profileImage chargePerHour reviews isOnline phoneNumber status jobsCompleted')
-            .limit(20);
-        } catch {
-          workers = [];
-        }
-
-        if (workers.length > 0) break;
+          },
+        })
+          .select('name rating skills location profileImage chargePerHour reviews isOnline phoneNumber status jobsCompleted')
+          .limit(20);
+      } catch {
+        workers = [];
       }
     }
 
@@ -131,7 +127,7 @@ router.get('/nearby', auth, async (req, res) => {
   }
 });
 
-// PUT /api/workers/location — update worker's GPS position
+// PUT /api/workers/location â€” update worker's GPS position
 router.put('/location', auth, async (req, res) => {
   try {
     const { latitude, longitude } = req.body;
@@ -146,7 +142,7 @@ router.put('/location', auth, async (req, res) => {
   }
 });
 
-// PUT /api/workers/profile — update skills, chargePerHour, isOnline
+// PUT /api/workers/profile â€” update skills, chargePerHour, isOnline
 router.put('/profile', auth, async (req, res) => {
   try {
     const { skills, chargePerHour, isOnline } = req.body;
@@ -180,7 +176,7 @@ router.put('/profile', auth, async (req, res) => {
   }
 });
 
-// PUT /api/workers/status — update worker availability status
+// PUT /api/workers/status â€” update worker availability status
 router.put('/status', auth, async (req, res) => {
   try {
     const { status } = req.body;

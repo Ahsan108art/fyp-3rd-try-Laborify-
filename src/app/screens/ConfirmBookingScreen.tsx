@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { StarRating } from "../components/StarRating";
-import { MapPin, Clock, DollarSign, Briefcase, Navigation, Phone, ArrowLeft } from "lucide-react";
+import { MapPin, Clock, Banknote, Briefcase, Navigation, Phone, ArrowLeft } from "lucide-react";
 import type { Coords } from "../utils/geo";
 import { getSocket } from "../utils/socket";
 import { Geolocation } from "@capacitor/geolocation";
@@ -114,7 +114,7 @@ export function ConfirmBookingScreen() {
           <h3 className="text-lg font-semibold text-white mb-4">Worker Details</h3>
           <div className="flex items-start gap-4 mb-4">
             <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
-              <span className="text-2xl">👤</span>
+              <span className="text-2xl">ðŸ‘¤</span>
             </div>
             <div className="flex-1">
               <h4 className="text-xl font-semibold text-white">{worker.name}</h4>
@@ -175,7 +175,7 @@ export function ConfirmBookingScreen() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-white/70">
-                <DollarSign size={18} className="text-[#F4C430]" />
+                <Banknote size={18} className="text-[#F4C430]" />
                 <span>Hourly Rate</span>
               </div>
               <span className="text-lg font-semibold text-white">PKR {worker.pricePerHour}/hr</span>
@@ -191,7 +191,7 @@ export function ConfirmBookingScreen() {
             <div className="flex items-center justify-between">
               <span className="text-white">Estimated Total</span>
               <span className="text-xl font-bold text-[#F4C430]">
-                PKR {worker.pricePerHour > 0 ? `${worker.pricePerHour * 2}–${worker.pricePerHour * 4}` : 'TBD'}
+                PKR {worker.pricePerHour > 0 ? `${worker.pricePerHour * 2}â€“${worker.pricePerHour * 4}` : 'TBD'}
               </span>
             </div>
           </div>
@@ -202,7 +202,7 @@ export function ConfirmBookingScreen() {
             <Navigation size={16} className="text-[#F4C430] mt-0.5 shrink-0" />
             <p className="text-sm text-white/80">
               After confirming, you'll see the worker's live location on the map
-              as they travel to you — just like a ride-hailing app.
+              as they travel to you â€” just like a ride-hailing app.
             </p>
           </div>
         </Card>
@@ -220,7 +220,7 @@ export function ConfirmBookingScreen() {
           onClick={handleConfirm}
           disabled={confirming}
         >
-          {confirming ? confirmingText || "Processing…" : "Confirm & Track Worker"}
+          {confirming ? confirmingText || "Processingâ€¦" : "Confirm & Track Worker"}
         </Button>
       </motion.div>
     </div>

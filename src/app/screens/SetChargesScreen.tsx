@@ -4,7 +4,7 @@ import { API_URL } from "../utils/api";
 import { motion } from "motion/react";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
-import { DollarSign, Clock } from "lucide-react";
+import { Banknote, Clock } from "lucide-react";
 
 export function SetChargesScreen() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export function SetChargesScreen() {
         body: JSON.stringify({ chargePerHour: parseFloat(hourlyRate) || 0 }),
       });
     } catch {
-      // ignore — proceed even if save fails
+      // ignore â€” proceed even if save fails
     } finally {
       setSaving(false);
       navigate("/location-setup");
@@ -62,7 +62,7 @@ export function SetChargesScreen() {
             type="number"
             value={hourlyRate}
             onChange={setHourlyRate}
-            icon={<DollarSign size={20} />}
+            icon={<Banknote size={20} />}
           />
         </div>
 
@@ -73,7 +73,7 @@ export function SetChargesScreen() {
             type="number"
             value={fixedPrice}
             onChange={setFixedPrice}
-            icon={<DollarSign size={20} />}
+            icon={<Banknote size={20} />}
           />
         </div>
 

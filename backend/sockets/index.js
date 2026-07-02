@@ -47,6 +47,20 @@ const ioHandler = (io) => {
       io.to(`job_${jobId}`).emit('location_update', { latitude, longitude });
     });
 
+    // Laborer says they reached the client's destination.
+    socket.on('worker_arrived_destination', ({ clientId, workerId, jobId }) => {
+      const payload = { workerId: workerId || socket.userId, jobId };
+      if (clientId) io.to(clientId).emit('worker_arrived_destination', payload);
+      if (jobId) io.to(`job_${jobId}`).emit('worker_arrived_destination', payload);
+    });
+
+    // Client confirms the laborer is actually at the destination.
+    socket.on('destination_confirmed', ({ workerId, clientId, jobId }) => {
+      const payload = { workerId, clientId: clientId || socket.userId, jobId };
+      if (workerId) io.to(workerId).emit('destination_confirmed', payload);
+      if (jobId) io.to(`job_${jobId}`).emit('destination_confirmed', payload);
+    });
+
     // Client sends a job request to a specific worker
     socket.on('job_request', async ({ workerId, clientId, ...jobData }, callback) => {
       if (!workerId) {

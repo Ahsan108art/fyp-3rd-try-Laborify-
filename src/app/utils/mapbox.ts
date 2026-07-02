@@ -87,7 +87,10 @@ export async function getGeocodeData(coords: Coords): Promise<GeocodeData> {
     }
 
     const exactName = `${finalArea}, ${finalCity}`;
-    const formatted = `${exactName} (Lat: ${lat.toFixed(5)}, Lon: ${lng.toFixed(5)})`;
+    const formatted =
+      finalArea === "Unknown Area" && finalCity === "Unknown City"
+        ? `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+        : exactName;
 
     return { city: finalCity, area: finalArea, formatted };
   } catch {

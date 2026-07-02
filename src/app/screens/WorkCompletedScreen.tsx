@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
-import { CheckCircle, Briefcase, Clock, DollarSign } from "lucide-react";
+import { CheckCircle, Briefcase, Clock, Banknote } from "lucide-react";
 
 export function WorkCompletedScreen() {
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ export function WorkCompletedScreen() {
           <h3 className="text-lg font-semibold text-white mb-4">Worker</h3>
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-              <span className="text-xl">👤</span>
+              <span className="text-xl">ðŸ‘¤</span>
             </div>
             <div>
               <p className="text-lg font-semibold text-white">{workerName}</p>
@@ -87,7 +87,7 @@ export function WorkCompletedScreen() {
         <Card className="bg-gradient-to-br from-[#F4C430]/10 to-[#D4A820]/10 border-[#F4C430]/30">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold text-white">Total Cost</h3>
-            <DollarSign size={20} className="text-[#F4C430]" />
+            <Banknote size={20} className="text-[#F4C430]" />
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-white/70">

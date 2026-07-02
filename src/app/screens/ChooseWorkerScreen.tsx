@@ -40,7 +40,7 @@ export function ChooseWorkerScreen() {
 
         const data = await res.json();
         if (res.ok) {
-          setWorkers(data);
+          setWorkers(data.filter((w: any) => w.status === 'available' && w.isOnline && w.distanceMeters !== null));
         } else {
           setApiError(`API ${res.status}: ${data?.error ?? data?.message ?? JSON.stringify(data)}`);
         }
@@ -60,11 +60,12 @@ export function ChooseWorkerScreen() {
     const socket = getSocket();
 
     const handleStatusChanged = ({ workerId, status, isOnline }: { workerId: string; status: string; isOnline: boolean }) => {
-      setWorkers(prev => prev.map(w =>
-        w._id === workerId
-          ? { ...w, status, isOnline }
-          : w
-      ));
+      setWorkers(prev => {
+        if (status !== 'available' || !isOnline) {
+          return prev.filter(w => w._id !== workerId);
+        }
+        return prev.map(w => w._id === workerId ? { ...w, status, isOnline } : w);
+      });
     };
 
     socket.on('worker_status_changed', handleStatusChanged);
@@ -98,7 +99,7 @@ export function ChooseWorkerScreen() {
           </button>
         </div>
         <p className="text-white/60 ml-13">
-          {loading ? "Finding workers nearby…" : `${workers.filter(w => w.status === 'available').length} available workers found`}
+          {loading ? "Finding workers nearbyâ€¦" : `${workers.filter(w => w.status === 'available').length} available workers found`}
         </p>
       </motion.div>
 

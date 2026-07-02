@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Clock, MapPin, Star, Phone, Hammer } from 'lucide-react';
 import { MapView, type MapViewHandle, type MapMarker } from '../components/MapView';
+import { Button } from '../components/Button';
 import { getDirections } from '../utils/mapbox';
 import { formatDistance, formatDuration, interpolateCoords, interpolateAlongRoute, type Coords } from '../utils/geo';
 import { getSocket } from '../utils/socket';
@@ -22,13 +23,14 @@ export function LiveTrackingScreen() {
   const mapRef = useRef<MapViewHandle>(null);
 
   const stateData = routerLocation.state as {
-    worker?: { name?: string; rating?: number; pricePerHour?: number; phoneNumber?: string };
+    worker?: { _id?: string; name?: string; rating?: number; pricePerHour?: number; phoneNumber?: string };
     clientCoords?: Coords;
     laborerCoords?: Coords;
     jobId?: string;
   } | null;
 
-  const worker = stateData?.worker ?? { name: 'Alex Johnson', rating: 4.8, pricePerHour: 25 };
+  const worker = stateData?.worker ?? { _id: undefined, name: 'Alex Johnson', rating: 4.8, pricePerHour: 25 };
+  const workerId = worker._id;
   const clientCoords: Coords = stateData?.clientCoords ?? LAHORE_CENTER;
   const laborerInitial: Coords = stateData?.laborerCoords ?? LAHORE_LABORER;
   const jobId = stateData?.jobId;
@@ -40,6 +42,8 @@ export function LiveTrackingScreen() {
   const [distanceLabel, setDistanceLabel] = useState<string | null>(null);
   const [mode] = useState<'driving' | 'walking'>('driving');
   const [usingSocket, setUsingSocket] = useState(false);
+  const [arrivalRequested, setArrivalRequested] = useState(false);
+  const [arrivalConfirmed, setArrivalConfirmed] = useState(false);
 
   const stepRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -138,6 +142,15 @@ export function LiveTrackingScreen() {
       setPhase('working');
     };
 
+    const handleWorkerArrived = (payload: { workerId?: string; jobId?: string }) => {
+      if (jobId && payload.jobId && payload.jobId !== jobId) return;
+      if (workerId && payload.workerId && payload.workerId !== workerId) return;
+      setArrivalRequested(true);
+      setPhase('arrived');
+      setEta('Arrived!');
+      setDistanceLabel('0 m');
+    };
+
     const handleWorkCompleted = () => {
       setPhase('completed');
       setTimeout(() => {
@@ -148,16 +161,18 @@ export function LiveTrackingScreen() {
     };
 
     socket.on('location_update', handleLocationUpdate);
+    socket.on('worker_arrived_destination', handleWorkerArrived);
     socket.on('work_started', handleWorkStarted);
     socket.on('work_completed', handleWorkCompleted);
 
     return () => {
       clearTimeout(fallbackTimer);
       socket.off('location_update', handleLocationUpdate);
+      socket.off('worker_arrived_destination', handleWorkerArrived);
       socket.off('work_started', handleWorkStarted);
       socket.off('work_completed', handleWorkCompleted);
     };
-  }, [jobId, clientCoords, fetchRoute, startSimulation, navigate, worker]);
+  }, [jobId, clientCoords, fetchRoute, startSimulation, navigate, worker, workerId]);
 
   // On mount: initial route + camera fit + no-jobId simulation
   useEffect(() => {
@@ -189,6 +204,16 @@ export function LiveTrackingScreen() {
   }, []);
 
   const isActiveWork = phase === 'working' || phase === 'completed';
+
+  const handleConfirmArrival = () => {
+    if (!workerId) return;
+    getSocket().emit('destination_confirmed', {
+      workerId,
+      clientId: localStorage.getItem('userId') ?? '',
+      jobId,
+    });
+    setArrivalConfirmed(true);
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#0B1C2C]">
@@ -424,13 +449,31 @@ export function LiveTrackingScreen() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex items-center gap-3 py-4 px-4 bg-green-500/10 border border-green-500/30 rounded-2xl"
+                  className="space-y-3"
                 >
+                  <div className="flex items-center gap-3 py-4 px-4 bg-green-500/10 border border-green-500/30 rounded-2xl">
                   <span className="text-xl">🎉</span>
                   <div>
-                    <p className="text-sm font-semibold text-white">{worker.name} has arrived!</p>
-                    <p className="text-xs text-white/50">Work will begin shortly</p>
+                    <p className="text-sm font-semibold text-white">
+                      {arrivalRequested ? `${worker.name} says they have arrived` : `${worker.name} is near your location`}
+                    </p>
+                    <p className="text-xs text-white/50">
+                      {arrivalConfirmed
+                        ? 'Arrival confirmed. Work can begin.'
+                        : 'Confirm only after you see the worker at your destination.'}
+                    </p>
                   </div>
+                  </div>
+                  {arrivalRequested && (
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      onClick={handleConfirmArrival}
+                      disabled={arrivalConfirmed || !workerId}
+                    >
+                      {arrivalConfirmed ? 'Arrival Confirmed' : 'Yes, Worker Has Reached'}
+                    </Button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

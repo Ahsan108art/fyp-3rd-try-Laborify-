@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { API_URL } from "../utils/api";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { MapPin, Navigation, Search, X } from "lucide-react";
@@ -33,6 +34,8 @@ export function LocationSetupScreen() {
       setCity(data.city);
       setArea(data.area);
       setSearchQuery(`${data.area}, ${data.city}`);
+      localStorage.setItem("userCoords", JSON.stringify(coords));
+      localStorage.setItem("userAddress", data.formatted);
     } finally {
       setDetecting(false);
     }
@@ -59,6 +62,8 @@ export function LocationSetupScreen() {
       const data = await getGeocodeData(s.center);
       setCity(data.city);
       setArea(data.area);
+      localStorage.setItem("userCoords", JSON.stringify(s.center));
+      localStorage.setItem("userAddress", data.formatted);
     } finally {
       setDetecting(false);
     }
@@ -87,6 +92,8 @@ export function LocationSetupScreen() {
       setCity(data.city);
       setArea(data.area);
       setSearchQuery(`${data.area}, ${data.city}`);
+      localStorage.setItem("userCoords", JSON.stringify(coords));
+      localStorage.setItem("userAddress", data.formatted);
     } catch (error) {
       console.error("GPS failed, trying IP fallback:", error);
       try {
@@ -99,6 +106,8 @@ export function LocationSetupScreen() {
         setCity(data.city);
         setArea(data.area);
         setSearchQuery(`${data.area}, ${data.city}`);
+        localStorage.setItem("userCoords", JSON.stringify(coords));
+        localStorage.setItem("userAddress", data.formatted);
       } catch (fallbackError) {
         console.error("IP fallback also failed:", fallbackError);
         alert("Could not detect your location. Please tap the map manually.");
@@ -108,8 +117,26 @@ export function LocationSetupScreen() {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     const userType = localStorage.getItem("userType");
+    if (userType === "labor" && pinCoords) {
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`${API_URL}/api/workers/location`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            longitude: pinCoords[0],
+            latitude: pinCoords[1],
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to save worker location", err);
+      }
+    }
     navigate(userType === "labor" ? "/profile-created" : "/find-worker");
   };
 

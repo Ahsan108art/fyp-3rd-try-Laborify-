@@ -4,12 +4,13 @@ import { API_URL } from "../utils/api";
 import { motion } from "motion/react";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
-import { Phone, Lock, Hammer } from "lucide-react";
+import { Phone, Lock, Hammer, User } from "lucide-react";
 
 export function LoginScreen() {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState<"user" | "labor">("user");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +26,13 @@ export function LoginScreen() {
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.message || 'Login failed');
+      }
+      if (data.user.role !== selectedRole) {
+        throw new Error(
+          selectedRole === "labor"
+            ? "This account is registered as a customer. Switch to Customer login."
+            : "This account is registered as labor. Switch to Labor login."
+        );
       }
       localStorage.setItem("userType", data.user.role);
       localStorage.setItem("userRole", data.user.role);
@@ -63,7 +71,9 @@ export function LoginScreen() {
         className="mb-12"
       >
         <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-        <p className="text-white/60">Login to continue</p>
+        <p className="text-white/60">
+          Login as {selectedRole === "labor" ? "labor" : "customer"} to continue
+        </p>
       </motion.div>
 
       <motion.div
@@ -72,6 +82,42 @@ export function LoginScreen() {
         transition={{ delay: 0.1 }}
         className="flex-1 space-y-5"
       >
+        <div>
+          <p className="text-sm font-medium text-white/80 mb-2">Login Type</p>
+          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-white/5 border border-white/10 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedRole("user");
+                setError(null);
+              }}
+              className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-all ${
+                selectedRole === "user"
+                  ? "bg-[#F4C430] text-[#0B1C2C]"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <User size={16} />
+              Customer
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedRole("labor");
+                setError(null);
+              }}
+              className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-all ${
+                selectedRole === "labor"
+                  ? "bg-[#F4C430] text-[#0B1C2C]"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Hammer size={16} />
+              Labor
+            </button>
+          </div>
+        </div>
+
         <Input
           label="Phone Number"
           placeholder="Enter phone number"
@@ -107,7 +153,7 @@ export function LoginScreen() {
           <div className="text-red-500 text-sm font-medium text-center">{error}</div>
         )}
         <Button variant="primary" fullWidth onClick={handleLogin} disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Logging in..." : `Login as ${selectedRole === "labor" ? "Labor" : "Customer"}`}
         </Button>
 
         <p className="text-center text-white/60">

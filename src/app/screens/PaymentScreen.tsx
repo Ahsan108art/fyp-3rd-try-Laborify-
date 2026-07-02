@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
-import { DollarSign, CreditCard, Smartphone, Check } from "lucide-react";
+import { Banknote, CreditCard, Smartphone, Check, Wallet } from "lucide-react";
 
 const paymentMethods = [
-  { id: "cash", name: "Cash", icon: DollarSign, description: "Pay in cash" },
+  { id: "cash", name: "Cash", icon: Banknote, description: "Pay in cash" },
+  { id: "easypaisa", name: "Easypaisa", icon: Wallet, description: "Open Easypaisa app" },
   { id: "jazzcash", name: "JazzCash", icon: Smartphone, description: "Mobile wallet" },
   { id: "card", name: "Credit Card", icon: CreditCard, description: "Pay with card" },
 ];
@@ -19,6 +20,21 @@ export function PaymentScreen() {
   const worker = state?.worker;
   const earnings = state?.earnings || 0;
   const jobId = state?.jobId;
+
+  const openEasypaisaApp = () => {
+    const playStoreUrl = "https://play.google.com/store/apps/details?id=pk.com.telenor.phoenix";
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = `intent://open#Intent;scheme=easypaisa;package=pk.com.telenor.phoenix;S.browser_fallback_url=${encodeURIComponent(playStoreUrl)};end`;
+      return;
+    }
+    window.open("https://easypaisa.com.pk/", "_blank");
+  };
+
+  const handleSelectMethod = (methodId: string) => {
+    setSelectedMethod(methodId);
+    if (methodId === "easypaisa") openEasypaisaApp();
+  };
 
   const handlePayment = () => {
     navigate("/rate-labor", { state: { worker, jobId, earnings } });
@@ -61,7 +77,7 @@ export function PaymentScreen() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + index * 0.05 }}
-                  onClick={() => setSelectedMethod(method.id)}
+                  onClick={() => handleSelectMethod(method.id)}
                   className={`
                     w-full p-5 rounded-2xl transition-all border-2
                     ${
@@ -135,7 +151,7 @@ export function PaymentScreen() {
           onClick={handlePayment}
           disabled={!selectedMethod}
         >
-          Mark as Paid
+          {selectedMethod === "easypaisa" ? "Mark Easypaisa Payment as Done" : "Mark as Paid"}
         </Button>
       </motion.div>
     </div>

@@ -183,7 +183,7 @@ export function ServiceSelectionScreen() {
         <Button
           variant="primary"
           fullWidth
-          onClick={() => navigate("/add-job-details", { state: { category, selectedServices } })}
+          onClick={() => navigate("/add-job-details", { state: { ...(location.state as any), category, selectedServices } })}
           disabled={selectedServices.length === 0}
         >
           Next ({selectedServices.length} selected)

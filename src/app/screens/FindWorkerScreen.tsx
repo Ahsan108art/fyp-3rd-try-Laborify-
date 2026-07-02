@@ -53,8 +53,11 @@ export function FindWorkerScreen() {
         try {
           const label = await reverseGeocode(c);
           setLocationLabel(label);
+          localStorage.setItem("userAddress", label);
         } catch {
-          setLocationLabel(`${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`);
+          const fallbackLabel = `${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
+          setLocationLabel(fallbackLabel);
+          localStorage.setItem("userAddress", fallbackLabel);
         }
       } catch (err) {
         if (mounted) {
@@ -189,7 +192,7 @@ export function FindWorkerScreen() {
               fullWidth
               onClick={() =>
                 navigate("/service-selection", {
-                  state: { category: selectedCategory, coords },
+                  state: { category: selectedCategory, coords, address: locationLabel },
                 })
               }
               disabled={!selectedCategory}

@@ -60,7 +60,7 @@ export function WorkerMapScreen() {
         if (coords) {
           params.set('lat', String(coords[1]));
           params.set('lng', String(coords[0]));
-          params.set('radius', '50');
+          params.set('radius', '20');
         }
         if (category) params.set('category', category);
 
@@ -71,7 +71,7 @@ export function WorkerMapScreen() {
         if (res.ok) {
           const data = await res.json();
           const mapped = data
-            .filter((w: any) => w.location?.coordinates && w.location.coordinates[0] !== 0)
+            .filter((w: any) => w.status === 'available' && w.isOnline && w.distanceMeters !== null && w.location?.coordinates && w.location.coordinates[0] !== 0)
             .map((w: any) => ({
               id: w._id,
               name: w.name,
@@ -99,11 +99,9 @@ export function WorkerMapScreen() {
   // Listen for real-time worker status changes
   useEffect(() => {
     const socket = getSocket();
-    const handleStatusChanged = ({ workerId, status }: { workerId: string; status: string }) => {
-      if (status === 'occupied' || status === 'on_job') {
-        // Remove them from the map completely
+    const handleStatusChanged = ({ workerId, status, isOnline }: { workerId: string; status: string; isOnline: boolean }) => {
+      if (status !== 'available' || !isOnline) {
         setWorkers((prev) => prev.filter((w) => w.id !== workerId));
-        // If they were selected, deselect them
         setSelectedWorker((prev) => (prev?.id === workerId ? null : prev));
       }
     };

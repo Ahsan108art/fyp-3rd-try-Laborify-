@@ -248,6 +248,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(function MapView(
         center: coords,
         zoom: 15, duration: 800,
       });
+      onMapClickRef.current?.(coords);
     } catch (e) {
       // denied or error
     }

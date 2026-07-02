@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
-import { MapPin, DollarSign, Briefcase, Phone, ArrowLeft, AlertTriangle, Clock, Image } from "lucide-react";
+import { MapPin, Banknote, Briefcase, Phone, ArrowLeft, AlertTriangle, Clock, Image } from "lucide-react";
 import { getSocket } from "../utils/socket";
 
 const URGENCY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
@@ -67,6 +67,7 @@ export function JobRequestScreen() {
         jobTitle,
         address: jobData?.address,
         chargePerHour: pricePerHour,
+        clientCoords: jobData?.clientCoords,
       },
     });
   };
@@ -108,7 +109,7 @@ export function JobRequestScreen() {
         <Card>
           <div className="flex items-center gap-4 mb-4">
             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-xl">
-              👤
+              ðŸ‘¤
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-white">{clientName}</h3>
@@ -194,7 +195,7 @@ export function JobRequestScreen() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-white/70">
-                <DollarSign size={18} className="text-[#F4C430]" />
+                <Banknote size={18} className="text-[#F4C430]" />
                 <span>Hourly Rate</span>
               </div>
               <span className="text-xl font-bold text-[#F4C430]">PKR {pricePerHour}/hr</span>
@@ -203,7 +204,7 @@ export function JobRequestScreen() {
               <div className="flex items-center justify-between pt-2 border-t border-white/10">
                 <span className="text-sm text-white/60">Client Budget</span>
                 <span className="text-sm font-medium text-white">
-                  PKR {budgetMin > 0 ? budgetMin.toLocaleString() : '—'} – {budgetMax > 0 ? budgetMax.toLocaleString() : '—'}
+                  PKR {budgetMin > 0 ? budgetMin.toLocaleString() : 'â€”'} â€“ {budgetMax > 0 ? budgetMax.toLocaleString() : 'â€”'}
                 </span>
               </div>
             )}

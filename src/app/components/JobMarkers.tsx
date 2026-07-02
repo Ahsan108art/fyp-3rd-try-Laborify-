@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Navigation, MapPin, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { X, Navigation, MapPin, Banknote, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from './Button';
 import { formatDistance, openNativeMaps, type Coords } from '../utils/geo';
 
@@ -106,7 +106,7 @@ export function JobBottomSheet({
             )}
             {priceDisplay ? (
               <div className="flex items-center gap-1.5 text-sm text-white/60">
-                <DollarSign size={14} className="text-[#F4C430]" />
+                <Banknote size={14} className="text-[#F4C430]" />
                 <span>PKR {priceDisplay}</span>
               </div>
             ) : null}

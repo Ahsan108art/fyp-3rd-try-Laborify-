@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../components/Button';
 import { MapView, type MapMarker } from '../components/MapView';
 import { reverseGeocode, forwardGeocode, type GeocodeSuggestion } from '../utils/mapbox';
-import { Upload, X, MapPin, Search, ArrowLeft, AlertTriangle, Clock, DollarSign } from 'lucide-react';
+import { Upload, X, MapPin, Search, ArrowLeft, AlertTriangle, Clock, Banknote } from 'lucide-react';
 import type { Coords } from '../utils/geo';
 
 const URGENCY_LEVELS = [
@@ -19,6 +19,19 @@ export function AddJobDetailsScreen() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const category: string = (state as any)?.category ?? '';
+  const initialCoords: Coords | null =
+    (state as any)?.coords ??
+    ((state as any)?.location as Coords | undefined) ??
+    (() => {
+      const saved = localStorage.getItem('userCoords');
+      if (!saved) return null;
+      try {
+        return JSON.parse(saved) as Coords;
+      } catch {
+        return null;
+      }
+    })();
+  const initialAddress: string = (state as any)?.address ?? localStorage.getItem('userAddress') ?? '';
 
   const [title, setTitle] = useState(category ? category.charAt(0).toUpperCase() + category.slice(1) + ' Service' : '');
   const [description, setDescription] = useState('');
@@ -31,9 +44,9 @@ export function AddJobDetailsScreen() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   // Map state
-  const [pinCoords, setPinCoords] = useState<Coords | null>(null);
-  const [address, setAddress] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [pinCoords, setPinCoords] = useState<Coords | null>(initialCoords);
+  const [address, setAddress] = useState(initialAddress);
+  const [searchQuery, setSearchQuery] = useState(initialAddress);
   const [suggestions, setSuggestions] = useState<GeocodeSuggestion[]>([]);
   const [geocoding, setGeocoding] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -189,6 +202,7 @@ export function AddJobDetailsScreen() {
         className="relative mx-4 mb-4 rounded-3xl overflow-hidden"
       >
         <MapView
+          centerCoords={pinCoords ?? initialCoords ?? undefined}
           zoom={13}
           markers={markers}
           onMapClick={handleMapClick}
@@ -228,7 +242,7 @@ export function AddJobDetailsScreen() {
               onChange={(e) => handleSearchChange(e.target.value)}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              placeholder={geocoding ? 'Getting address…' : 'Search or tap map to set location'}
+              placeholder={geocoding ? 'Getting addressâ€¦' : 'Search or tap map to set location'}
               className="flex-1 bg-transparent text-white placeholder:text-white/30 text-sm focus:outline-none"
             />
             {pinCoords && (
@@ -358,7 +372,7 @@ export function AddJobDetailsScreen() {
         {/* Budget Range */}
         <div>
           <label className="flex items-center gap-2 text-sm text-white/70 mb-2">
-            <DollarSign size={14} className="text-[#F4C430]" />
+            <Banknote size={14} className="text-[#F4C430]" />
             Budget Range (PKR)
           </label>
           <div className="flex gap-3">
@@ -372,7 +386,7 @@ export function AddJobDetailsScreen() {
                 className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#F4C430]/50 text-sm"
               />
             </div>
-            <div className="flex items-center text-white/30">—</div>
+            <div className="flex items-center text-white/30">â€”</div>
             <div className="flex-1 relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/30">Max</span>
               <input
@@ -419,7 +433,7 @@ export function AddJobDetailsScreen() {
         {!pinCoords && (
           <div className="p-4 bg-[#F4C430]/10 border border-[#F4C430]/30 rounded-2xl">
             <p className="text-sm text-white/80">
-              <strong className="text-[#F4C430]">📍 Required:</strong> Tap the map or search an address to set the job location.
+              <strong className="text-[#F4C430]">ðŸ“ Required:</strong> Tap the map or search an address to set the job location.
             </p>
           </div>
         )}
@@ -438,7 +452,7 @@ export function AddJobDetailsScreen() {
           disabled={!canProceed || submitting}
           onClick={handleSubmit}
         >
-          {submitting ? 'Posting Job…' : 'Find Workers'}
+          {submitting ? 'Posting Jobâ€¦' : 'Find Workers'}
         </Button>
       </motion.div>
     </div>
